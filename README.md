@@ -2,6 +2,9 @@
 
 A modern YouTube Dashboard built with Next.js 15, TypeScript, and the YouTube Data API v3. Manage your YouTube videos, post comments, and take notes all in one place.
 
+<img width="1571" height="852" alt="image" src="https://github.com/user-attachments/assets/b5b284ef-bb6b-42b8-a585-feef4235b464" />
+
+
 Working demo vide - [https://www.loom.com/share/db91b36be9544594b9a8e6782405c570?sid=eab58009-a775-4f03-8ab3-dd540ca63f80]
 
 ## ✨ Features
