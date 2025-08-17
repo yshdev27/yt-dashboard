@@ -14,18 +14,14 @@ interface Props {
 }
 
 export function VideoEditor({ video }: Props) {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const [title, setTitle] = useState((video.snippet?.title ?? "") as string);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  const [description, setDescription] = useState((video.snippet?.description ?? "") as string);
+  const [title, setTitle] = useState(video.snippet?.title ?? "");
+  const [description, setDescription] = useState(video.snippet?.description ?? "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (!video.id) return;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      await updateVideoDetails(video.id as string, title, description);
+      await updateVideoDetails(video.id, title, description);
       alert("Video updated successfully!");
     } catch (error) {
       console.error(error);
@@ -38,7 +34,6 @@ export function VideoEditor({ video }: Props) {
       <CardHeader>
         <CardTitle>Edit Video Details</CardTitle>
         <CardDescription>
-          {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
           Views: {video.statistics?.viewCount} | Likes: {video.statistics?.likeCount}
         </CardDescription>
       </CardHeader>

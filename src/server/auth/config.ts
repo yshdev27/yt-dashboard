@@ -78,8 +78,72 @@ export const authConfig = {
         },
         select: {
           access_token: true,
+          refresh_token: true,
+          expires_at: true,
+          providerAccountId: true,
         },
       });
+
+      // Check if token is expired and refresh if needed
+      let accessToken = account?.access_token;
+      
+      if (account?.expires_at && account.expires_at * 1000 < Date.now()) {
+        console.log('Access token expired, attempting refresh...');
+        
+        if (account.refresh_token) {
+          try {
+            // Refresh the access token
+            const response = await fetch('https://oauth2.googleapis.com/token', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({
+                client_id: process.env.GOOGLE_CLIENT_ID!,
+                client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+                grant_type: 'refresh_token',
+                refresh_token: account.refresh_token,
+              }),
+            });
+
+            const data = await response.json() as {
+              access_token?: string;
+              expires_in?: number;
+              error?: string;
+            };
+
+            if (data.access_token) {
+              // Update the account with new access token
+              await db.account.update({
+                where: {
+                  provider_providerAccountId: {
+                    provider: "google",
+                    providerAccountId: account.providerAccountId,
+                  },
+                },
+                data: {
+                  access_token: data.access_token,
+                  expires_at: Math.floor(Date.now() / 1000) + (data.expires_in ?? 3600),
+                },
+              });
+              
+              accessToken = data.access_token;
+              console.log('Access token refreshed successfully');
+            } else {
+              console.error('Failed to refresh token:', data.error);
+              // Clear the invalid token
+              accessToken = null;
+            }
+          } catch (error) {
+            console.error('Error refreshing access token:', error);
+            // Clear the invalid token on error
+            accessToken = null;
+          }
+        } else {
+          console.log('No refresh token available');
+          accessToken = null;
+        }
+      }
 
       return {
         ...session,
@@ -87,7 +151,7 @@ export const authConfig = {
           ...session.user,
           id: user.id,
         },
-        accessToken: account?.access_token ?? null,
+        accessToken,
       };
     },
     jwt: ({ token, account }) => {

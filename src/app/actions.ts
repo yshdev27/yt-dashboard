@@ -8,16 +8,26 @@ import { db } from '~/server/db';
 // Helper function to get an authenticated YouTube API client
 async function getYouTubeClient() {
   const session = await auth();
-  if (!session?.user || !session.accessToken) {
-    throw new Error('Unauthenticated or missing access token');
+  console.log('Session check:', { 
+    hasSession: !!session, 
+    hasUser: !!session?.user, 
+    hasAccessToken: !!session?.accessToken,
+    userId: session?.user?.id 
+  });
+  
+  if (!session?.user) {
+    throw new Error('User not authenticated - please sign in with Google');
+  }
+  
+  if (!session.accessToken) {
+    throw new Error('No access token found - please sign out and sign in again to refresh your YouTube permissions');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   const authClient = new google.auth.OAuth2();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   authClient.setCredentials({ access_token: session.accessToken });
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+  console.log('YouTube client created with access token');
+
   return google.youtube({ version: 'v3', auth: authClient });
 }
 
@@ -39,10 +49,8 @@ async function logEvent(action: string, details: object) {
 
 export async function updateVideoDetails(videoId: string, newTitle: string, newDescription: string) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const youtube = await getYouTubeClient();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const response = await youtube.videos.update({
       part: ['snippet'],
       requestBody: {
@@ -57,7 +65,6 @@ export async function updateVideoDetails(videoId: string, newTitle: string, newD
 
     await logEvent('VIDEO_DETAILS_UPDATED', { videoId, title: newTitle });
     revalidatePath('/'); // Refresh the page to show new details
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
     return response.data;
   } catch (error) {
     console.error('Error updating video details:', error);
@@ -69,11 +76,9 @@ export async function updateVideoDetails(videoId: string, newTitle: string, newD
 
 export async function postNewComment(videoId: string, text: string) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const youtube = await getYouTubeClient();
 
     // Attempt to post the comment directly
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     await youtube.commentThreads.insert({
       part: ['snippet'],
       requestBody: {
@@ -116,10 +121,8 @@ export async function postNewComment(videoId: string, text: string) {
 
 export async function deleteComment(commentId: string) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const youtube = await getYouTubeClient();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     await youtube.comments.delete({
       id: commentId,
     });

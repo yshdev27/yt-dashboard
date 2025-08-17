@@ -59,28 +59,21 @@ export function CommentsSection({ videoId, comments }: Props) {
         {/* List of existing comments */}
         <div className="space-y-4">
           {comments.map((commentThread) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
             const topLevelComment = commentThread.snippet?.topLevelComment;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (!topLevelComment?.id || !topLevelComment.snippet) return null;
             
             return (
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
               <div key={topLevelComment.id} className="flex items-start gap-3">
                 <div className="relative h-8 w-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                  {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
                   {topLevelComment.snippet.authorProfileImageUrl ? (
                     <Image
-                      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                       src={topLevelComment.snippet.authorProfileImageUrl}
-                      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                       alt={topLevelComment.snippet.authorDisplayName ?? 'author'}
                       fill
                       className="object-cover"
                     />
                   ) : (
                     <div className="text-xs text-gray-500">
-                      {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */}
                       {(topLevelComment.snippet.authorDisplayName ?? 'U').charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -88,17 +81,15 @@ export function CommentsSection({ videoId, comments }: Props) {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold">
-                      {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
                       {topLevelComment.snippet.authorDisplayName}
                     </p>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
                         const commentId = topLevelComment.id;
                         if (commentId) {
-                          void handleDeleteComment(commentId as string);
+                          void handleDeleteComment(commentId);
                         }
                       }}
                     >
@@ -109,7 +100,6 @@ export function CommentsSection({ videoId, comments }: Props) {
                   <div
                     className="prose prose-sm dark:prose-invert"
                     dangerouslySetInnerHTML={{ 
-                      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                       __html: topLevelComment.snippet.textDisplay ?? '' 
                     }}
                   />
